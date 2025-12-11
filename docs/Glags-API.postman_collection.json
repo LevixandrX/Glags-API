@@ -1,0 +1,536 @@
+{
+  "info": {
+    "name": "Glags-API (Магазин стеклянных сувениров)",
+    "_postman_id": "c7b5a4c4-0000-0000-0000-000000000000",
+    "description": "Коллекция запросов к API магазина стеклянных сувениров на домене https://k-levitin.xn--80ahdri7a.site/api.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Регистрация пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Александр\",\n  \"last_name\": \"Евгеньевич\",\n  \"email\": \"slevitin1@gmail.com\",\n  \"phone\": \"+79001234568\",\n  \"password\": \"Levix2006\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/registration",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "registration"]
+            },
+            "description": "POST /api/registration — регистрация нового пользователя. Возвращает 201 и JSON в формате из ТЗ."
+          },
+          "response": []
+        },
+        {
+          "name": "Авторизация (получить токен)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"slevitin1@gmail.com\",\n  \"password\": \"Levix2006\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/authorization",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "authorization"]
+            },
+            "description": "POST /api/authorization — авторизация по email и паролю. В ответе data.token."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Сохраняем токен в переменную\", function () {",
+                  "  var json = pm.response.json();",
+                  "  if (json && json.data && json.data.token) {",
+                  "    pm.collectionVariables.set(\"authToken\", json.data.token);",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Авторизация с неверным паролем (ожидаем 401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"slevitin1@gmail.com\",\n  \"password\": \"WrongPassword123\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/authorization",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "authorization"]
+            },
+            "description": "POST /api/authorization с неверным паролем — ожидаем 401 в формате {\"error\": {\"code\": 401, \"message\": \"Validation error\", \"errors\": {\"password\": [\"Неверный пароль\"]}}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Выход из системы (Logout)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/logout",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "logout"]
+            },
+            "description": "POST /api/logout — выход из системы. Очищает токен авторизации."
+          },
+          "response": []
+        },
+        {
+          "name": "Выход из системы (гость, без токена)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/logout",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "logout"]
+            },
+            "description": "POST /api/logout без токена — гость очищает гостевую корзину, ответ 200 c message."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Список товаров",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/products?per-page=10&page=1",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "per-page", "value": "10" },
+                { "key": "page", "value": "1" }
+              ]
+            },
+            "description": "GET /api/products — список товаров с пагинацией."
+          },
+          "response": []
+        },
+        {
+          "name": "Получить товар по ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/products/1",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "products", "1"]
+            },
+            "description": "GET /api/products/{id} — карточка товара. При отсутствии вернёт 404 в формате {\"message\":\"Not found\",\"code\":404}."
+          },
+          "response": []
+        },
+        {
+          "name": "Создать товар (админ)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Стеклянная ваза «Морской бриз»\",\n  \"price\": 12500,\n  \"category_id\": 3,\n  \"description\": \"Ручная работа, высота 42 см\",\n  \"stock_quantity\": 50\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/products",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "products"]
+            },
+            "description": "POST /api/products — создание товара (только администратор). Возвращает 201 с данными товара."
+          },
+          "response": []
+        },
+        {
+          "name": "Редактировать товар (админ)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 11900,\n  \"stock_quantity\": 0\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/products/1",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "products", "1"]
+            },
+            "description": "PUT /api/products/{id} — редактирование товара (только администратор). Возвращает 200 с сообщением об успехе."
+          },
+          "response": []
+        },
+        {
+          "name": "Удалить товар (админ)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/products/1",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "products", "1"]
+            },
+            "description": "DELETE /api/products/{id} — удаление товара и связанных изображений (только администратор). Возвращает 200 с сообщением {\"message\": \"Товар и связанные изображения удалены\"}."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Добавить товар в корзину",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/cart",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "cart"]
+            },
+            "description": "POST /api/cart — добавить позицию в корзину."
+          },
+          "response": []
+        },
+        {
+          "name": "Содержимое корзины",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/cart",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "cart"]
+            },
+            "description": "GET /api/cart — список позиций корзины текущего авторизованного пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "Удалить позицию из корзины",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/cart/1",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "cart", "1"]
+            },
+            "description": "DELETE /api/cart/{id} — удалить позицию корзины по ID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Создать заказ",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_address\": \"Санкт-Петербург, пр. Невский, д. 25, кв. 12\",\n  \"comment\": \"Подарочная упаковка, пожалуйста\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/orders",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "orders"]
+            },
+            "description": "POST /api/orders — создать заказ. Позиции заказа могут формироваться в бэкенде из корзины."
+          },
+          "response": []
+        },
+        {
+          "name": "Создать заказ (гость)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_address\": \"Санкт-Петербург, пр. Невский, д. 25, кв. 12\",\n  \"comment\": \"Подарочная упаковка\",\n  \"guest_first_name\": \"Иван\",\n  \"guest_last_name\": \"Петров\",\n  \"guest_email\": \"ivan@example.com\",\n  \"guest_phone\": \"+79001234567\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/orders",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "orders"]
+            },
+            "description": "POST /api/orders — создание заказа для гостя из гостевой корзины (без токена)."
+          },
+          "response": []
+        },
+        {
+          "name": "Список заказов (с фильтрами)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/orders?user_id=2&status=new",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "orders"],
+              "query": [
+                { "key": "user_id", "value": "2" },
+                { "key": "status", "value": "new" }
+              ]
+            },
+            "description": "GET /api/orders — список заказов текущего пользователя. Можно фильтровать по status. Для админов также доступен фильтр по user_id. Админы могут использовать /api/admin/orders для просмотра всех заказов."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Профиль без авторизации (ожидаем отказ)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/profile",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "profile"]
+            },
+            "description": "GET /api/profile без токена — ожидаем 403 и message о необходимости авторизации."
+          },
+          "response": []
+        },
+        {
+          "name": "Просмотр профиля",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/profile",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "profile"]
+            },
+            "description": "GET /api/profile — просмотр профиля текущего пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "Редактирование профиля",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Александр\",\n  \"last_name\": \"Левитин\",\n  \"phone\": \"+79001234567\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/profile",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "profile"]
+            },
+            "description": "PATCH /api/profile — редактирование профиля текущего пользователя."
+          },
+          "response": []
+        },
+        {
+          "name": "Загрузить аватар",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": "/путь/к/твоему/файлу.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/profile/avatar",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "profile", "avatar"]
+            },
+            "description": "POST /api/profile/avatar — загрузка аватара (multipart/form-data, поле avatar)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Список всех заказов (админ)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/admin/orders",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "admin", "orders"]
+            },
+            "description": "GET /api/admin/orders — список заказов для администратора."
+          },
+          "response": []
+        },
+        {
+          "name": "Обновить статус заказа (админ)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/admin/orders/1",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "admin", "orders", "1"]
+            },
+            "description": "PATCH /api/admin/orders/{id} — обновить статус заказа."
+          },
+          "response": []
+        },
+        {
+          "name": "Список всех пользователей (админ)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/admin/users",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "admin", "users"]
+            },
+            "description": "GET /api/admin/users — список всех пользователей для администратора."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Password",
+      "item": [
+        {
+          "name": "Сброс пароля (авторизованный)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"Levix2006\",\n  \"new_password\": \"NewPass123!\",\n  \"new_password_confirm\": \"NewPass123!\"\n}"
+            },
+            "url": {
+              "raw": "https://k-levitin.xn--80ahdri7a.site/api/password/reset",
+              "protocol": "https",
+              "host": ["k-levitin.xn--80ahdri7a", "site"],
+              "path": ["api", "password", "reset"]
+            },
+            "description": "POST /api/password/reset — смена пароля для авторизованного пользователя."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "authToken",
+      "value": ""
+    }
+  ]
+}
